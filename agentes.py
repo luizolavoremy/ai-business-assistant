@@ -85,7 +85,7 @@ REGRAS:
 - Não afirme causas. Descreva o que os dados mostram e marque qualquer explicação como hipótese.
 - Não exagere diferenças pequenas. Se os valores forem parecidos, diga que a diferença é pequena.
 - Volume por estado não mostra poder de compra por pessoa, só o total vendido.
-- Escreva valores em reais no formato brasileiro, como R$ 2.081.332,37.
+- Escreva todos os números no formato brasileiro, com ponto nos milhares e vírgula nos decimais, como R$ 2.081.332,37, 9.665 unidades e 7,92%.
 - Responda em português.
 
 FORMATO DA RESPOSTA:
@@ -106,6 +106,45 @@ def agente_analise(metricas):
     return chamar_modelo(PROMPT_ANALISE, conteudo)
 
 
+PROMPT_RECOMENDACOES = """
+PAPEL:
+Você é um consultor de e-commerce que transforma análises em ações práticas.
+
+TAREFA:
+Você recebe dois textos: o resultado da validação de qualidade dos dados de uma base de pedidos e a análise comercial dessa base, já limpa. Proponha ações concretas para a loja, baseadas apenas nesses dois textos.
+
+SIGNIFICADO DAS ENTRADAS:
+- RESULTADO DA VALIDAÇÃO DOS DADOS: lista dos problemas de qualidade encontrados na base antes da limpeza, com a gravidade e a ação para cada um.
+- RESULTADO DA ANÁLISE COMERCIAL: achados numerados sobre vendas, receita, ticket médio, cancelamento e sazonalidade.
+
+REGRAS:
+- Baseie cada ação em um número dos textos recebidos e cite esse número. Nunca invente valores.
+- Copie cada número exatamente como aparece nos textos, sem alterar nenhum dígito.
+- Classifique cada ação como "Os dados provam" quando o número mostra o que fazer sem depender de uma explicação externa, por exemplo manter o investimento no que lidera em todas as métricas. Classifique como "Os dados só sugerem" quando a ação depende de uma causa que os dados não mostram.
+- Não afirme causas. Se uma ação depender de uma explicação, marque como hipótese e diga que dado adicional seria necessário para confirmar.
+- Se a diferença entre grupos for pequena, como menos de 2 pontos percentuais em taxas ou ticket médio parecido, diga que ela não justifica uma ação específica.
+- Volume por estado não é poder de compra por pessoa. Não proponha ações baseadas nessa ideia.
+- Se a validação indicar problemas de dados, inclua uma ação sobre a qualidade dos dados.
+- Não invente ações sem base nos textos, como valores de desconto, orçamento ou prazos.
+- Escreva todos os números no formato brasileiro, com ponto nos milhares e vírgula nos decimais.
+- Responda em português.
+
+FORMATO DA RESPOSTA:
+Escreva de 3 a 5 ações numeradas. Cada ação tem três partes: a ação, começando com um verbo no imperativo; a justificativa, com o número que a sustenta; e a classificação, "Os dados provam" ou "Os dados só sugerem". Depois, escreva uma linha começando com "Limitações:" que cite 1 a 2 limitações dos dados e quais dados adicionais ajudariam.
+"""
+
+
+def agente_recomendacoes(validacao, analise):
+    conteudo = (
+        "RESULTADO DA VALIDAÇÃO DOS DADOS:\n" + validacao
+        + "\n\nRESULTADO DA ANÁLISE COMERCIAL:\n" + analise
+    )
+    return chamar_modelo(PROMPT_RECOMENDACOES, conteudo)
+
+
 if __name__ == "__main__":
+    diagnostico = diagnostico_base_suja("pedidos_loja.csv")
     metricas = metricas_base_limpa("pedidos_limpos.csv")
-    print(agente_analise(metricas))
+    validacao = agente_validacao(diagnostico)
+    analise = agente_analise(metricas)
+    print(agente_recomendacoes(validacao, analise))
