@@ -75,30 +75,30 @@ A base não está pronta para análise.
 A operação registrou 4.871 pedidos e 9.665 unidades vendidas, alcançando uma receita total de R$ 2.081.332,37 entre janeiro de 2023 e dezembro de 2024. As unidades vendidas apresentaram um crescimento de 35,04% em 2024 na comparação com 2023.
 
 2. Categorias
-A categoria Eletronicos registrou 2.527 unidades e receita de R$ 821.515,52, a categoria Moda teve 2.333 unidades e receita de R$ 416.218,29, a categoria Casa & Decoracao contabilizou 1.907 unidades e receita de R$ 326.748,39, a categoria Beleza obteve 1.560 unidades e receita de R$ 385.033,10, e a categoria Esporte somou 1.338 unidades e receita de R$ 131.817,07. As categorias Beleza e Casa & Decoracao mudam de posição entre unidades e receita.
+A categoria Eletronicos registrou 2.527 unidades e receita de R$ 821.515,52. Moda teve 2.333 unidades e receita de R$ 416.218,29. Casa & Decoracao somou 1.907 unidades e receita de R$ 326.748,39, enquanto Beleza apresentou 1.560 unidades e receita de R$ 385.033,10. Esporte obteve 1.338 unidades e receita de R$ 131.817,07. Casa & Decoracao e Beleza mudam de posição entre unidades e receita.
 
 3. Ticket médio
-O ticket médio foi de R$ 325,10 na categoria Eletronicos, R$ 246,82 na categoria Beleza, R$ 178,40 na categoria Moda, R$ 171,34 na categoria Casa & Decoracao e R$ 98,52 na categoria Esporte.
+O ticket médio foi de R$ 325,10 para Eletronicos, R$ 246,82 para Beleza, R$ 178,40 para Moda, R$ 171,34 para Casa & Decoracao e R$ 98,52 para Esporte.
 
 4. Estados
-Os primeiros colocados em unidades foram SP com 3.405, RJ com 1.150 e MG com 995, enquanto o último colocado foi GO com 341 unidades. O ticket médio é parecido entre os estados, variando de R$ 199,73 a R$ 221,51.
+Os três primeiros colocados em unidades foram SP com 3.405 unidades, RJ com 1.150 unidades e MG com 995 unidades, enquanto GO foi o último colocado com 341 unidades. O ticket médio é parecido entre os estados, variando de R$ 199,73 em PE até R$ 221,51 em BA.
 
 5. Canais
-O canal site registrou 4.384 unidades, receita de R$ 947.832,27 e ticket médio de R$ 216,20, o canal app teve 3.401 unidades, receita de R$ 715.029,05 e ticket médio de R$ 210,24, e o canal marketplace somou 1.880 unidades, receita de R$ 418.471,05 e ticket médio de R$ 222,59. A diferença de ticket médio entre os canais é pequena.
+O site registrou 4.384 unidades, receita de R$ 947.832,27 e ticket médio de R$ 216,20. O app teve 3.401 unidades, receita de R$ 715.029,05 e ticket médio de R$ 210,24, e o marketplace somou 1.880 unidades, receita de R$ 418.471,05 e ticket médio de R$ 222,59. A diferença de ticket médio entre os canais é pequena.
 
 6. Cancelamento
-A taxa de cancelamento geral da operação foi de 7,92%. Por categoria, a taxa de cancelamento foi de 8,66% em Esporte, 8,45% em Eletronicos, 7,95% em Moda, 7,88% em Beleza e 6,70% em Casa & Decoracao.
+A taxa de cancelamento geral foi de 7,92%. Por categoria, a taxa foi de 8,66% em Esporte, 8,45% em Eletronicos, 7,95% em Moda, 7,88% em Beleza e 6,70% em Casa & Decoracao.
 
 7. Sazonalidade
-Os 3 meses mais fortes em unidades vendidas foram 2024-11 com 825, 2024-12 com 720 e 2023-11 com 552. Os 3 meses mais fracos foram 2023-02 com 226, 2023-01 com 235 e 2023-08 com 300 unidades.
+Os três meses mais fortes em unidades vendidas foram 2024-11 com 825, 2024-12 com 720 e 2023-11 com 552. Os três meses mais fracos foram 2023-02 com 226, 2023-01 com 235 e 2023-08 com 300.
 
-Limitações: Os dados consolidados de unidades e receita cobrem o período total de 24 meses, sem detalhamento mensal individual da receita no resumo fornecido.
+Limitações: Os dados consolidados não detalham o perfil socioeconômico dos clientes por estado ou canal.
 
 ## 3. Recomendações
 
-1. Separe para revisão 21 linhas com preço unitário negativo, 45 com quantidade zero ou negativa e 71 com preço unitário nulo, e remova 118 linhas duplicadas, pois os dados provam.
-2. Mantenha a categoria Eletronicos, pois lidera em unidades (2.527), receita (R$ 821.515,52) e ticket médio (R$ 325,10), e os dados provam.
-3. Investigue a categoria Esporte, que possui 1.338 unidades na última posição, receita de R$ 131.817,07 e ticket médio de R$ 98,52, pois os dados só sugerem.
-4. Investigue a categoria Beleza, que apresenta ticket médio de R$ 246,82 como o 2º maior entre as categorias e 1.560 unidades na 4ª posição em unidades, com a hipótese de que o volume menor pode ter causas que os dados não mostram, pois os dados só sugerem.
+1. Separe para revisão 21 linhas com preço unitário negativo, 45 com quantidade zero ou negativa e 71 com preço unitário nulo, além de remover 118 linhas duplicadas, pois os dados provam.
+2. Mantenha a categoria Eletronicos liderando em unidades (2.527), receita (R$ 821.515,52) e ticket médio (R$ 325,10), pois os dados provam.
+3. Investigue a categoria Esporte, que apresenta 1.338 unidades na última posição, receita de R$ 131.817,07 e ticket médio de R$ 98,52, pois os dados só sugerem.
+4. Investigue a categoria Beleza, que possui ticket médio de R$ 246,82 sendo o 2º maior entre as categorias e 1.560 unidades na 4ª posição em unidades, com a hipótese de que o volume menor pode ter causas que os dados não mostram, pois os dados só sugerem.
 
-Limitações: falta de dados de custos e margens; dados adicionais de margem de lucro e tráfego por categoria ajudariam.
+Limitações: falta de dados de custos e margens; dados adicionais de tráfego por categoria ajudariam.
