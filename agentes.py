@@ -82,9 +82,10 @@ REGRAS:
 - Volume por estado não mostra poder de compra por pessoa, só o total vendido.
 - Escreva valores em reais no formato brasileiro, como R$ 2.081.332,37.
 - Responda em português.
+- Só aponte divergência entre volume e receita quando o grupo mudar de posição de uma métrica para a outra, ou quando o ticket médio for bem diferente dos demais. Se a posição for a mesma nas duas, não use "mas" nem contraste.
 
 FORMATO DA RESPOSTA:
-Entre 5 e 7 achados numerados, cada um com um título curto e 1 a 2 frases com os números. Depois, uma linha começando com "Limitações:" que cite uma limitação dos dados.
+Entre 6 e 8 achados numerados, cada um com um título curto e 1 a 2 frases com os números. Os achados devem cobrir: categorias (unidades, receita e ticket médio), estados, canais (com o ticket médio), cancelamento, e sazonalidade, incluindo o mês mais forte e o mais fraco. Depois, uma linha começando com "Limitações:" que cite uma limitação dos dados.
 """
 
 
