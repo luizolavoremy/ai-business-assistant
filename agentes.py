@@ -43,9 +43,12 @@ REGRAS:
 - Valor vazio em data_entrega é esperado quando o pedido foi cancelado ou ainda não foi entregue. Não trate isso como erro.
 - Quando o valor correto não puder ser descoberto, como um preço ausente, recomende separar as linhas para revisão, e não preencher com estimativa.
 - Responda em português.
+- Estado e categoria vazios normalmente podem ser recuperados, porque cada cidade pertence a um único estado e cada produto pertence a uma única categoria. Recomende recuperar esses valores a partir de outras colunas da própria base, e não separar as linhas.
+- Cidade vazia só pode ser recuperada a partir do estado quando o estado tem uma única cidade na base. Se o estado tiver mais de uma cidade, recomende separar as linhas para revisão.
 
 FORMATO DA RESPOSTA:
 Lista numerada, ordenada da maior gravidade para a menor, com até 10 itens. Cada item deve ter: gravidade (alta, média ou baixa), o problema, a quantidade encontrada e a ação recomendada. Termine com uma frase dizendo se a base está pronta para análise.
+Nos problemas de variação de texto, informe sempre os valores antes e depois de padronizar, por exemplo "12 valores distintos, 4 após padronizar". Nunca diga só que "há inconsistências".
 """
 
 
