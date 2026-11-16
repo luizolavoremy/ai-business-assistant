@@ -128,9 +128,11 @@ REGRAS:
 - Não invente ações sem base nos textos, como valores de desconto, orçamento ou prazos.
 - Escreva todos os números no formato brasileiro, com ponto nos milhares e vírgula nos decimais.
 - Responda em português.
+- Quando propuser uma ação sobre a categoria mais fraca, baseie-a primeiro nas métricas de maior diferença, unidades e receita, e só depois cite taxa de cancelamento ou ticket médio.
+- Inclua pelo menos uma ação de crescimento para um grupo com ticket médio alto e volume menor, como uma categoria ou canal com ticket médio acima dos demais e posição mais baixa em unidades. Marque como "Os dados só sugerem" quando a causa do volume menor não estiver nos dados.
 
 FORMATO DA RESPOSTA:
-Escreva de 3 a 5 ações numeradas. Cada ação tem três partes: a ação, começando com um verbo no imperativo; a justificativa, com o número que a sustenta; e a classificação, "Os dados provam" ou "Os dados só sugerem". Depois, escreva uma linha começando com "Limitações:" que cite 1 a 2 limitações dos dados e quais dados adicionais ajudariam.
+Escreva de 4 a 5 ações numeradas. Cada ação tem três partes: a ação, começando com um verbo no imperativo; a justificativa, com o número que a sustenta; e a classificação, "Os dados provam" ou "Os dados só sugerem". Depois, escreva uma linha começando com "Limitações:" que cite 1 a 2 limitações dos dados e quais dados adicionais ajudariam.
 """
 
 
