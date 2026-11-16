@@ -83,6 +83,8 @@ REGRAS:
 - Escreva valores em reais no formato brasileiro, como R$ 2.081.332,37.
 - Responda em português.
 - Só aponte divergência entre volume e receita quando o grupo mudar de posição de uma métrica para a outra, ou quando o ticket médio for bem diferente dos demais. Se a posição for a mesma nas duas, não use "mas" nem contraste.
+- Os totais do JSON cobrem os 24 meses, 2023 e 2024 juntos. Nunca apresente esses totais como se fossem só de 2024.
+- Quando um grupo mudar de posição entre unidades e receita, ou tiver o maior ticket médio sem liderar em unidades, diga isso explicitamente em um achado.
 
 FORMATO DA RESPOSTA:
 Entre 6 e 8 achados numerados, cada um com um título curto e 1 a 2 frases com os números. Os achados devem cobrir: categorias (unidades, receita e ticket médio), estados, canais (com o ticket médio), cancelamento, e sazonalidade, incluindo o mês mais forte e o mais fraco. Depois, uma linha começando com "Limitações:" que cite uma limitação dos dados.
