@@ -18,6 +18,8 @@ def gerar_relatorio(base_suja, base_limpa, saida):
 
     relatorio = (
         f"# Relatório de pedidos\n\nGerado em {date.today():%d/%m/%Y}.\n\n"
+        "A validação (seção 1) analisa a base original, ainda suja. "
+        "A análise e as recomendações (seções 2 e 3) usam a base já limpa no projeto 1.\n\n"
         f"## 1. Validação dos dados\n\n{validacao}\n\n"
         f"## 2. Análise comercial\n\n{analise}\n\n"
         f"## 3. Recomendações\n\n{recomendacoes}\n"
