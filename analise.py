@@ -50,6 +50,8 @@ def _resumo_por(df, coluna):
     grupo["receita"] = grupo["receita"].round(2)
     grupo["taxa_cancelamento_pct"] = (grupo["taxa_cancelamento_pct"] * 100).round(2)
     grupo["ticket_medio"] = (grupo["receita"] / grupo["unidades"]).round(2)
+    grupo["posicao_unidades"] = grupo["unidades"].rank(ascending=False, method="min").astype(int)
+    grupo["posicao_receita"] = grupo["receita"].rank(ascending=False, method="min").astype(int)
     return _para_dict(grupo.sort_values("receita", ascending=False))
 
 
