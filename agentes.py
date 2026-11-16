@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
-from analise import diagnostico_base_suja
+from analise import diagnostico_base_suja, metricas_base_limpa
 
 load_dotenv()
 client = genai.Client()
@@ -58,6 +58,41 @@ def agente_validacao(diagnostico):
     return chamar_modelo(PROMPT_VALIDACAO, conteudo)
 
 
+PROMPT_ANALISE = """
+PAPEL:
+Você é um analista comercial de e-commerce.
+
+TAREFA:
+Você recebe um resumo em JSON com métricas de pedidos de uma loja online, entre jan/2023 e dez/2024, a partir de uma base já limpa. Escreva os principais achados comerciais.
+
+SIGNIFICADO DOS CAMPOS:
+- total_pedidos: número de pedidos. unidades_vendidas: soma das quantidades, e um pedido pode ter até 4 unidades. Não confunda os dois.
+- receita_total: soma de quantidade vezes preço unitário, em reais.
+- taxa_cancelamento_pct: percentual de pedidos cancelados.
+- crescimento_unidades_2024_vs_2023_pct: variação das unidades vendidas de 2023 para 2024.
+- por_categoria, por_estado e por_canal: unidades, receita, taxa de cancelamento e ticket médio de cada grupo.
+- top5_produtos_por_receita e bottom5_produtos_por_receita: os 5 maiores e os 5 menores em receita.
+- unidades_por_mes: unidades vendidas em cada mês.
+
+REGRAS:
+- Use apenas os números do JSON e cite o número em cada achado. Nunca invente valores.
+- Unidades e receita podem contar histórias diferentes. Quando houver diferença, compare as duas.
+- Não afirme causas. Descreva o que os dados mostram e marque qualquer explicação como hipótese.
+- Não exagere diferenças pequenas. Se os valores forem parecidos, diga que a diferença é pequena.
+- Volume por estado não mostra poder de compra por pessoa, só o total vendido.
+- Escreva valores em reais no formato brasileiro, como R$ 2.081.332,37.
+- Responda em português.
+
+FORMATO DA RESPOSTA:
+Entre 5 e 7 achados numerados, cada um com um título curto e 1 a 2 frases com os números. Depois, uma linha começando com "Limitações:" que cite uma limitação dos dados.
+"""
+
+
+def agente_analise(metricas):
+    conteudo = json.dumps(metricas, ensure_ascii=False)
+    return chamar_modelo(PROMPT_ANALISE, conteudo)
+
+
 if __name__ == "__main__":
-    diagnostico = diagnostico_base_suja("pedidos_loja.csv")
-    print(agente_validacao(diagnostico))
+    metricas = metricas_base_limpa("pedidos_limpos.csv")
+    print(agente_analise(metricas))
