@@ -87,6 +87,25 @@ def metricas_base_limpa(caminho):
     }
 
 
+def _br(valor, casas):
+    texto = f"{valor:,.{casas}f}"
+    return texto.replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def formatar_para_modelo(dados):
+    """Converte todos os números para texto no formato brasileiro
+    (ex.: 385033.1 -> "385.033,10"), para o modelo só copiar."""
+    if isinstance(dados, dict):
+        return {k: formatar_para_modelo(v) for k, v in dados.items()}
+    if isinstance(dados, bool):
+        return dados
+    if isinstance(dados, int):
+        return _br(dados, 0)
+    if isinstance(dados, float):
+        return _br(dados, 2)
+    return dados
+
+
 if __name__ == "__main__":
     diagnostico = diagnostico_base_suja("pedidos_loja.csv")
     metricas = metricas_base_limpa("pedidos_limpos.csv")
