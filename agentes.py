@@ -47,7 +47,8 @@ REGRAS:
 - Cidade vazia só pode ser recuperada a partir do estado quando o estado tem uma única cidade na base. Se o estado tiver mais de uma cidade, recomende separar as linhas para revisão.
 
 FORMATO DA RESPOSTA:
-Lista numerada, ordenada da maior gravidade para a menor, com até 10 itens. Cada item deve ter: gravidade (alta, média ou baixa), o problema, a quantidade encontrada e a ação recomendada. Termine com uma frase dizendo se a base está pronta para análise.
+Lista numerada, ordenada da maior gravidade para a menor, com todos os problemas encontrados, sem omitir nenhum. Cada item deve ter: gravidade (alta, média ou baixa), o problema, a quantidade encontrada e a ação recomendada. Escreva cada ação no imperativo, como "Separar as linhas para revisão". Não use a palavra "recomende" nem "recomendo" dentro da ação.
+Depois da lista, escreva uma linha com o total de problemas listados, no formato "Total de problemas listados: N". Termine com uma frase dizendo se a base está pronta para análise.
 Nos problemas de variação de texto, informe sempre os valores antes e depois de padronizar, por exemplo "12 valores distintos, 4 após padronizar". Nunca diga só que "há inconsistências".
 """
 
