@@ -130,9 +130,14 @@ REGRAS:
 - Responda em português.
 - Quando propuser uma ação sobre a categoria mais fraca, baseie-a primeiro nas métricas de maior diferença, unidades e receita, e só depois cite taxa de cancelamento ou ticket médio.
 - Inclua pelo menos uma ação de crescimento para um grupo com ticket médio alto e volume menor, como uma categoria ou canal com ticket médio acima dos demais e posição mais baixa em unidades. Marque como "Os dados só sugerem" quando a causa do volume menor não estiver nos dados.
+- Ações que pedem melhorar, investigar ou investir em uma categoria, canal ou grupo de desempenho fraco dependem de uma causa que os dados não mostram. Classifique essas ações como "Os dados só sugerem".
+- Use nomes comuns em português, como "taxa de cancelamento" e "ticket médio". Nunca escreva nomes técnicos de campos, como taxa_cancelamento_pct.
+- Escreva sempre valores em reais com duas casas decimais, como R$ 216,20.
+- Quando a causa de um desempenho fraco não estiver nos dados, comece a ação com "Investigue", e não com "Invista".
 
 FORMATO DA RESPOSTA:
 Escreva de 4 a 5 ações numeradas. Cada ação tem três partes: a ação, começando com um verbo no imperativo; a justificativa, com o número que a sustenta; e a classificação, "Os dados provam" ou "Os dados só sugerem". Depois, escreva uma linha começando com "Limitações:" que cite 1 a 2 limitações dos dados e quais dados adicionais ajudariam.
+As limitações devem estar ligadas às ações propostas.
 """
 
 
