@@ -68,6 +68,8 @@ def metricas_base_limpa(caminho):
     receita_produto = df.groupby("produto")["receita"].sum().round(2)
     receita_produto = receita_produto.sort_values(ascending=False)
 
+    unidades_mes = df.groupby("mes")["quantidade"].sum()
+
     return {
         "total_pedidos": len(df),
         "unidades_vendidas": int(df["quantidade"].sum()),
@@ -79,7 +81,9 @@ def metricas_base_limpa(caminho):
         "por_canal": _resumo_por(df, "canal"),
         "top5_produtos_por_receita": _para_dict(receita_produto.head(5)),
         "bottom5_produtos_por_receita": _para_dict(receita_produto.tail(5)),
-        "unidades_por_mes": _para_dict(df.groupby("mes")["quantidade"].sum()),
+        "unidades_por_mes": _para_dict(unidades_mes),
+        "top3_meses": _para_dict(unidades_mes.sort_values(ascending=False).head(3)),
+        "bottom3_meses": _para_dict(unidades_mes.sort_values().head(3)),
     }
 
 
