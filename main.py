@@ -27,7 +27,11 @@ def gerar_relatorio(base_suja, base_limpa, saida):
     if suspeitos:
         verificacao = "ATENÇÃO: números sem origem nas métricas: " + ", ".join(suspeitos)
     else:
-        verificacao = "Todos os números do relatório foram encontrados nas métricas."
+        verificacao = (
+            "Todos os números do relatório existem nas métricas. "
+            "A checagem não verifica se cada número está ligado ao assunto certo, "
+            "então a revisão humana continua necessária."
+        )
     print(verificacao)
 
     relatorio = (
