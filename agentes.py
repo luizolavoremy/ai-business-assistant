@@ -1,4 +1,5 @@
 import json
+import re
 
 from dotenv import load_dotenv
 from google import genai
@@ -11,6 +12,10 @@ client = genai.Client()
 
 MODELO = "gemini-3.5-flash-lite"
 
+def padronizar_formato(texto):
+    texto = re.sub(r"(R\$\s*\d{1,3}(?:\.\d{3})*,\d)(?!\d)", r"\g<1>0", texto)
+    texto = re.sub(r"(\d+,\d)(?!\d)(\s*%)", r"\g<1>0\2", texto)
+    return texto
 
 def chamar_modelo(instrucao, conteudo):
     resposta = client.models.generate_content(
@@ -18,7 +23,7 @@ def chamar_modelo(instrucao, conteudo):
         contents=conteudo,
         config=types.GenerateContentConfig(system_instruction=instrucao),
     )
-    return resposta.text
+    return padronizar_formato(resposta.text)
 
 
 PROMPT_VALIDACAO = """
