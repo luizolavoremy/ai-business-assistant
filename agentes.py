@@ -1,11 +1,10 @@
 import json
-import time
 
 from dotenv import load_dotenv
 from google import genai
-from google.genai import errors, types
+from google.genai import types
 
-from analise import diagnostico_base_suja, formatar_para_modelo, metricas_base_limpa
+from analise import diagnostico_base_suja, metricas_base_limpa
 
 load_dotenv()
 client = genai.Client()
@@ -13,84 +12,52 @@ client = genai.Client()
 MODELO = "gemini-3.5-flash-lite"
 
 
-def chamar_modelo(instrucao, conteudo, tentativas=5):
-    for i in range(tentativas):
-        try:
-            resposta = client.models.generate_content(
-                model=MODELO,
-                contents=conteudo,
-                config=types.GenerateContentConfig(
-                    system_instruction=instrucao,
-                    temperature=0,
-                ),
-            )
-            return resposta.text
-        except errors.ServerError as e:
-            if i == tentativas - 1:
-                raise
-            espera = 2 ** i * 5  # 5s, 10s, 20s, 40s
-            print(f"Modelo indisponível ({e.code}). Nova tentativa em {espera}s...")
-            time.sleep(espera)
+def chamar_modelo(instrucao, conteudo):
+    resposta = client.models.generate_content(
+        model=MODELO,
+        contents=conteudo,
+        config=types.GenerateContentConfig(system_instruction=instrucao),
+    )
+    return resposta.text
 
 
-def _br(valor, casas):
-    texto = f"{valor:,.{casas}f}"
-    return texto.replace(",", "X").replace(".", ",").replace("X", ".")
+PROMPT_VALIDACAO = """
+PAPEL:
+Você é um analista de qualidade de dados especializado em bases de e-commerce.
+
+TAREFA:
+Você recebe um resumo em JSON com contagens de problemas encontrados numa base de pedidos de loja online que ainda não foi limpa. Interprete esse resumo e liste os problemas de qualidade, do mais grave ao menos grave, dizendo o que fazer com cada um. Você só diagnostica: não corrige nem altera nenhum dado.
+
+SIGNIFICADO DOS CAMPOS:
+- total_linhas: número de linhas da base.
+- linhas_duplicadas: linhas idênticas a outra já existente.
+- nulos_por_coluna: quantidade de valores vazios, só nas colunas que têm algum.
+- quantidade_zero_ou_negativa: pedidos com quantidade menor ou igual a zero.
+- preco_unitario_negativo: pedidos com preço unitário negativo.
+- datas_em_formato_br: datas escritas como DD/MM/AAAA. As demais estão em AAAA-MM-DD, então a coluna mistura dois formatos.
+- frete_como_texto: valores de frete escritos como texto, com "R$" e vírgula, e não como número.
+- variacoes_cidade, variacoes_categoria e variacoes_status: "valores_distintos" é quantos valores diferentes a coluna tem, e "valores_apos_padronizar" é quantos sobram ao ignorar maiúsculas, acentos e espaços. Se os dois números forem diferentes, o mesmo valor está escrito de formas diferentes.
+
+REGRAS:
+- Use apenas os números do JSON. Nunca invente valores nem problemas.
+- Valor vazio em data_entrega é esperado quando o pedido foi cancelado ou ainda não foi entregue. Não trate isso como erro.
+- Quando o valor correto não puder ser descoberto, como um preço ausente, recomende separar as linhas para revisão, e não preencher com estimativa.
+- Responda em português.
+- Estado e categoria vazios normalmente podem ser recuperados, porque cada cidade pertence a um único estado e cada produto pertence a uma única categoria. Recomende recuperar esses valores a partir de outras colunas da própria base, e não separar as linhas.
+- Cidade vazia só pode ser recuperada a partir do estado quando o estado tem uma única cidade na base. Se o estado tiver mais de uma cidade, recomende separar as linhas para revisão.
+
+FORMATO DA RESPOSTA:
+Lista numerada, ordenada da maior gravidade para a menor, com todos os problemas encontrados, sem omitir nenhum. Cada item deve ter: gravidade (alta, média ou baixa), o problema, a quantidade encontrada e a ação recomendada. Escreva cada ação no imperativo, como "Separar as linhas para revisão". Não use a palavra "recomende" nem "recomendo" dentro da ação.
+Depois da lista, escreva uma linha com o total de problemas listados, no formato "Total de problemas listados: N". Termine com uma frase dizendo se a base está pronta para análise.
+Nos problemas de variação de texto, informe sempre os valores antes e depois de padronizar, por exemplo "12 valores distintos, 4 após padronizar". Nunca diga só que "há inconsistências". 
+Formate em Markdown: cada item numerado, com Problema, Quantidade e Ação em linhas de marcadores, começando com hífen.
+"""
 
 
-# ---------------------------------------------------------------------------
-# 1. VALIDAÇÃO: gerada em Python, sem modelo
-# ---------------------------------------------------------------------------
+def agente_validacao(diagnostico):
+    conteudo = json.dumps(diagnostico, ensure_ascii=False)
+    return chamar_modelo(PROMPT_VALIDACAO, conteudo)
 
-def agente_validacao(diag):
-    nulos = diag["nulos_por_coluna"]
-    itens = []
-
-    def add(grav, problema, qtd, acao):
-        if qtd:
-            itens.append((grav, problema, qtd, acao))
-
-    revisar = "Separar as linhas para revisão"
-    add(0, "Preço unitário negativo", diag["preco_unitario_negativo"], revisar)
-    add(0, "Quantidade zero ou negativa", diag["quantidade_zero_ou_negativa"], revisar)
-    add(0, "Preço unitário nulo", nulos.get("preco_unitario", 0), revisar)
-    add(0, "Linhas duplicadas", diag["linhas_duplicadas"], "Remover as linhas duplicadas")
-    add(1, "Frete como texto", diag["frete_como_texto"],
-        "Converter o frete para o formato numérico")
-    add(1, "Datas em formato BR misturadas com AAAA-MM-DD", diag["datas_em_formato_br"],
-        "Padronizar as datas para o formato AAAA-MM-DD")
-    for coluna in ("cidade", "categoria", "status"):
-        v = diag[f"variacoes_{coluna}"]
-        if v["valores_distintos"] != v["valores_apos_padronizar"]:
-            qtd = (f"{_br(v['valores_distintos'], 0)} valores distintos, "
-                   f"{_br(v['valores_apos_padronizar'], 0)} após padronizar")
-            add(1, f"Variações de texto na coluna {coluna}", qtd,
-                "Padronizar os textos ignorando maiúsculas, acentos e espaços")
-    recuperar = "Recuperar esses valores a partir de outras colunas da própria base"
-    add(2, "Estado nulo", nulos.get("estado", 0), recuperar)
-    add(2, "Categoria nula", nulos.get("categoria", 0), recuperar)
-    add(2, "Cidade nula", nulos.get("cidade", 0),
-        "Recuperar a cidade a partir do estado quando o estado tiver uma única "
-        "cidade na base; caso contrário, separar as linhas para revisão")
-
-    nomes = ["Alta", "Média", "Baixa"]
-    linhas = []
-    for i, (grav, problema, qtd, acao) in enumerate(itens, 1):
-        qtd_txt = qtd if isinstance(qtd, str) else _br(qtd, 0)
-        linhas.append(
-            f"{i}. Gravidade: {nomes[grav]}\n"
-            f"Problema: {problema}\n"
-            f"Quantidade encontrada: {qtd_txt}\n"
-            f"Ação recomendada: {acao}.\n"
-        )
-    pronta = ("A base está pronta para análise." if not itens
-              else "A base não está pronta para análise.")
-    return "\n".join(linhas) + f"\nTotal de problemas listados: {len(itens)}\n{pronta}"
-
-
-# ---------------------------------------------------------------------------
-# 2. ANÁLISE: modelo
-# ---------------------------------------------------------------------------
 
 PROMPT_ANALISE = """
 PAPEL:
@@ -112,16 +79,14 @@ SIGNIFICADO DOS CAMPOS:
 
 REGRAS:
 - Use apenas os números do JSON e cite o número em cada achado. Nunca invente valores.
-- Os números do JSON já vêm escritos no formato brasileiro, como texto, com duas casas decimais quando têm decimais. Copie-os exatamente, sem remover zeros nem alterar dígitos. Valores em reais levam "R$", como R$ 385.033,10.
+- Copie cada número exatamente como está no JSON, sem alterar nenhum dígito.
 - Para falar de ranking de categorias, estados e canais, use apenas posicao_unidades e posicao_receita. Para falar dos meses mais fortes e mais fracos, use apenas top3_meses e bottom3_meses. Nunca ordene nem compare valores por conta própria.
 - Só aponte divergência entre unidades e receita quando posicao_unidades e posicao_receita forem diferentes, ou quando o ticket médio for bem diferente dos demais. Se as duas posições forem iguais, não use "mas" nem contraste.
 - Os totais do JSON cobrem os 24 meses, 2023 e 2024 juntos. Nunca apresente esses totais como se fossem só de 2024.
-- O período cobre 24 meses (janeiro de 2023 a dezembro de 2024). Nunca escreva "24 anos".
 - Não afirme causas. Descreva o que os dados mostram e marque qualquer explicação como hipótese.
 - Não exagere diferenças pequenas. Se os valores forem parecidos, diga que a diferença é pequena.
 - Volume por estado não mostra poder de compra por pessoa, só o total vendido.
-- Escreva "4.871 pedidos", e não "4.871 total de pedidos". Não copie o nome do campo do JSON para dentro da frase.
-- Escreva os nomes das categorias exatamente como estão no JSON.
+- Escreva todos os números no formato brasileiro, com ponto nos milhares e vírgula nos decimais, como R$ 2.081.332,37, 9.665 unidades e 7,92%.
 - Responda em português.
 
 FORMATO DA RESPOSTA:
@@ -129,8 +94,8 @@ Escreva exatamente 7 achados numerados, nesta ordem:
 1. Visão geral: total de pedidos, unidades, receita total e crescimento de 2024 sobre 2023.
 2. Categorias: unidades e receita de cada categoria, e quais mudam de posição entre unidades e receita.
 3. Ticket médio: o ticket médio de cada uma das 5 categorias.
-4. Estados: os 3 primeiros e o último colocado em unidades, e se o ticket médio é parecido entre os estados. Se citar o intervalo do ticket médio, use só valores de por_estado, indicando o menor e o maior, sem mencionar canais.
-5. Canais: unidades, receita e ticket médio dos 3 canais, e se a diferença de ticket médio entre eles é pequena ou relevante.
+4. Estados: os 3 primeiros e o último colocado em unidades, e se o ticket médio é parecido entre os estados.
+5. Canais: unidades, receita e ticket médio dos 3 canais, destacando o maior ticket médio.
 6. Cancelamento: a taxa geral e a taxa de cada uma das 5 categorias.
 7. Sazonalidade: os 3 meses mais fortes e os 3 mais fracos.
 Cada achado tem um título curto e 1 a 3 frases com os números. Depois, escreva uma linha começando com "Limitações:" que cite uma limitação dos dados.
@@ -138,108 +103,53 @@ Cada achado tem um título curto e 1 a 3 frases com os números. Depois, escreva
 
 
 def agente_analise(metricas):
-    conteudo = json.dumps(formatar_para_modelo(metricas), ensure_ascii=False)
+    conteudo = json.dumps(metricas, ensure_ascii=False)
     return chamar_modelo(PROMPT_ANALISE, conteudo)
-
-
-# ---------------------------------------------------------------------------
-# 3. RECOMENDAÇÕES: Python escolhe os grupos, o modelo só redige
-# ---------------------------------------------------------------------------
-
-def montar_fatos(diag, met):
-    cats = met["por_categoria"]
-    nulos = diag["nulos_por_coluna"]
-
-    # líder: posição 1 em unidades; lista só as métricas em que ele é o 1º
-    lider = next(n for n, c in cats.items() if c["posicao_unidades"] == 1)
-    maior_ticket = max(c["ticket_medio"] for c in cats.values())
-    metricas_lider = [f"unidades ({_br(cats[lider]['unidades'], 0)})"]
-    if cats[lider]["posicao_receita"] == 1:
-        metricas_lider.append(f"receita (R$ {_br(cats[lider]['receita'], 2)})")
-    if cats[lider]["ticket_medio"] == maior_ticket:
-        metricas_lider.append(f"ticket médio (R$ {_br(cats[lider]['ticket_medio'], 2)})")
-
-    # mais fraco: última posição em unidades
-    fraca = max(cats, key=lambda n: cats[n]["posicao_unidades"])
-    f = cats[fraca]
-
-    # crescimento: entre os 2 maiores tickets, 4ª posição ou pior em unidades, e não o mais fraco
-    ordem_ticket = sorted(cats, key=lambda n: cats[n]["ticket_medio"], reverse=True)
-    cresc = next(
-        (n for n in ordem_ticket[:2] if cats[n]["posicao_unidades"] >= 4 and n != fraca),
-        None,
-    )
-
-    revisar = (
-        f"{_br(diag['preco_unitario_negativo'], 0)} linhas com preço unitário negativo, "
-        f"{_br(diag['quantidade_zero_ou_negativa'], 0)} com quantidade zero ou negativa e "
-        f"{_br(nulos.get('preco_unitario', 0), 0)} com preço unitário nulo"
-    )
-
-    fatos = [
-        "AÇÃO 1 (qualidade dos dados). Comece com 'Separe'. "
-        f"Separar para revisão: {revisar}. "
-        f"Remover {_br(diag['linhas_duplicadas'], 0)} linhas duplicadas. "
-        "Classificação: Os dados provam.",
-
-        f"AÇÃO 2 (manter o líder). Comece com 'Mantenha'. Categoria: {lider}. "
-        f"Lidera em: {', '.join(metricas_lider)}. Cite só essas métricas. "
-        "Classificação: Os dados provam.",
-
-        f"AÇÃO 3 (categoria mais fraca). Comece com 'Investigue'. Categoria: {fraca}. "
-        f"Unidades: {_br(f['unidades'], 0)} (última posição). "
-        f"Receita: R$ {_br(f['receita'], 2)}. "
-        f"Ticket médio: R$ {_br(f['ticket_medio'], 2)}. "
-        "Não cite taxa de cancelamento. Classificação: Os dados só sugerem.",
-    ]
-
-    if cresc:
-        c = cats[cresc]
-        pos_ticket = ordem_ticket.index(cresc) + 1
-        fatos.append(
-            f"AÇÃO 4 (crescimento). Comece com 'Investigue'. Categoria: {cresc}. "
-            f"Ticket médio: R$ {_br(c['ticket_medio'], 2)} ({pos_ticket}º maior entre as categorias). "
-            f"Unidades: {_br(c['unidades'], 0)} ({c['posicao_unidades']}ª posição em unidades). "
-            "Explique que o volume menor pode ter causas que os dados não mostram (hipótese). "
-            "Classificação: Os dados só sugerem."
-        )
-    else:
-        fatos.append("AÇÃO 4: nenhuma categoria cumpre ticket alto com volume baixo. "
-                     "Escreva só 3 ações.")
-
-    return "\n".join(fatos)
 
 
 PROMPT_RECOMENDACOES = """
 PAPEL:
-Você é um consultor de e-commerce que transforma fatos em ações práticas.
+Você é um consultor de e-commerce que transforma análises em ações práticas.
 
 TAREFA:
-Você recebe uma lista de FATOS, um bloco por ação. Escreva uma ação para cada bloco, na mesma ordem, usando só os números e o verbo de abertura indicados no bloco.
+Você recebe dois textos: o resultado da validação de qualidade dos dados de uma base de pedidos e a análise comercial dessa base, já limpa. Proponha ações concretas para a loja, baseadas apenas nesses dois textos.
+
+SIGNIFICADO DAS ENTRADAS:
+- RESULTADO DA VALIDAÇÃO DOS DADOS: lista dos problemas de qualidade encontrados na base antes da limpeza, com a gravidade e a ação para cada um.
+- RESULTADO DA ANÁLISE COMERCIAL: achados numerados sobre vendas, receita, ticket médio, cancelamento e sazonalidade.
 
 REGRAS:
-- Escreva uma ação por bloco, sem juntar nem dividir blocos, e sem criar ações extras.
-- Copie os números exatamente como estão nos fatos. Não faça contas nem cite números que não estejam nos fatos.
-- Escreva os nomes das categorias exatamente como estão nos fatos.
-- Não afirme causas. Quando o bloco indicar hipótese, diga que é uma hipótese.
-- Não cite taxa de cancelamento, a menos que o bloco peça.
-- Não invente valores de desconto, orçamento nem prazos.
+- Baseie cada ação em um número dos textos recebidos e cite esse número. Nunca invente valores.
+- Copie cada número exatamente como aparece nos textos, sem alterar nenhum dígito.
+- Classifique cada ação como "Os dados provam" quando o número mostra o que fazer sem depender de uma explicação externa, por exemplo manter o investimento no que lidera em todas as métricas. Classifique como "Os dados só sugerem" quando a ação depende de uma causa que os dados não mostram.
+- Não afirme causas. Se uma ação depender de uma explicação, marque como hipótese e diga que dado adicional seria necessário para confirmar.
+- Se a diferença entre grupos for pequena, como menos de 2 pontos percentuais em taxas ou ticket médio parecido, diga que ela não justifica uma ação específica.
+- Volume por estado não é poder de compra por pessoa. Não proponha ações baseadas nessa ideia.
+- Se a validação indicar problemas de dados, inclua uma ação sobre a qualidade dos dados.
+- Não invente ações sem base nos textos, como valores de desconto, orçamento ou prazos.
+- Escreva todos os números no formato brasileiro, com ponto nos milhares e vírgula nos decimais.
 - Responda em português.
+- Quando propuser uma ação sobre a categoria mais fraca, baseie-a primeiro nas métricas de maior diferença, unidades e receita, e só depois cite taxa de cancelamento ou ticket médio.
+- Inclua pelo menos uma ação de crescimento para um grupo com ticket médio alto e volume menor, como uma categoria ou canal com ticket médio acima dos demais e posição mais baixa em unidades. Marque como "Os dados só sugerem" quando a causa do volume menor não estiver nos dados.
+- Ações que pedem melhorar, investigar ou investir em uma categoria, canal ou grupo de desempenho fraco dependem de uma causa que os dados não mostram. Classifique essas ações como "Os dados só sugerem".
+- Use nomes comuns em português, como "taxa de cancelamento" e "ticket médio". Nunca escreva nomes técnicos de campos, como taxa_cancelamento_pct.
+- Escreva sempre valores em reais com duas casas decimais, como R$ 216,20.
+- Quando a causa de um desempenho fraco não estiver nos dados, comece a ação com "Investigue", e não com "Invista".
+- Escreva sempre valores em reais com duas casas decimais, como R$ 216,20, e percentuais com duas casas, como 6,70%.
 
 FORMATO DA RESPOSTA:
-Ações numeradas de 1 em diante. Cada ação tem uma frase com a ação, começando com o verbo indicado, seguida da justificativa com os números do bloco e da classificação ("Os dados provam" ou "Os dados só sugerem") ao final.
-Depois, escreva uma linha começando com "Limitações:" que cite 1 a 2 limitações ligadas às ações acima, como falta de dados de custos, margens ou tráfego por categoria, e quais dados adicionais ajudariam.
+Escreva de 4 a 5 ações numeradas. Cada ação tem três partes: a ação, começando com um verbo no imperativo; a justificativa, com o número que a sustenta; e a classificação, "Os dados provam" ou "Os dados só sugerem". Depois, escreva uma linha começando com "Limitações:" que cite 1 a 2 limitações dos dados e quais dados adicionais ajudariam.
+As limitações devem estar ligadas às ações propostas. 
+Escreva a classificação em uma linha própria, começando com "Classificação:".
 """
 
 
-def agente_recomendacoes(validacao, analise, diagnostico=None, metricas=None):
-    # main.py chama só com (validacao, analise); os dados são lidos aqui
-    if diagnostico is None:
-        diagnostico = diagnostico_base_suja("pedidos_loja.csv")
-    if metricas is None:
-        metricas = metricas_base_limpa("pedidos_limpos.csv")
-    fatos = montar_fatos(diagnostico, metricas)
-    return chamar_modelo(PROMPT_RECOMENDACOES, "FATOS:\n" + fatos)
+def agente_recomendacoes(validacao, analise):
+    conteudo = (
+        "RESULTADO DA VALIDAÇÃO DOS DADOS:\n" + validacao
+        + "\n\nRESULTADO DA ANÁLISE COMERCIAL:\n" + analise
+    )
+    return chamar_modelo(PROMPT_RECOMENDACOES, conteudo)
 
 
 if __name__ == "__main__":
