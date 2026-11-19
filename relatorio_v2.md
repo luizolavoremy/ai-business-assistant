@@ -7,103 +7,109 @@ A validação (seção 1) analisa a base original, ainda suja. A análise e as r
 ## 1. Validação dos dados
 
 1. Gravidade: Alta
-- Problema: Preços unitários negativos
-- Quantidade: 21
+- Problema: Preço unitário negativo
+- Quantidade: 21 linhas
 - Ação: Separar as linhas para revisão
 
 2. Gravidade: Alta
-- Problema: Quantidades de pedidos com valor zero ou negativo
-- Quantidade: 45
+- Problema: Quantidade zero ou negativa
+- Quantidade: 45 linhas
 - Ação: Separar as linhas para revisão
 
 3. Gravidade: Alta
-- Problema: Preços unitários ausentes (valores nulos)
-- Quantidade: 71
+- Problema: Preço unitário nulo
+- Quantidade: 71 linhas
 - Ação: Separar as linhas para revisão
 
 4. Gravidade: Média
-- Problema: Frete cadastrado como texto (contendo "R$" e vírgula) em todas as linhas
-- Quantidade: 5118
-- Ação: Converter os valores de texto para formato numérico
-
-5. Gravidade: Média
-- Problema: Datas em formato brasileiro (DD/MM/AAAA) misturadas com o formato padrão (AAAA-MM-DD)
-- Quantidade: 1292
-- Ação: Padronizar todas as datas para o formato AAAA-MM-DD
-
-6. Gravidade: Média
-- Problema: Linhas duplicadas idênticas a outras já existentes
-- Quantidade: 118
+- Problema: Linhas duplicadas
+- Quantidade: 118 linhas
 - Ação: Remover as linhas duplicadas
 
+5. Gravidade: Média
+- Problema: Frete como texto (valores com "R$" e vírgula)
+- Quantidade: 5118 linhas
+- Ação: Converter os valores de frete para o formato numérico
+
+6. Gravidade: Média
+- Problema: Datas em formato misto (DD/MM/AAAA misturado com AAAA-MM-DD)
+- Quantidade: 1292 datas em formato BR
+- Ação: Padronizar todas as datas para o formato AAAA-MM-DD
+
 7. Gravidade: Baixa
-- Problema: Variações inconsistentes de texto na coluna de status
-- Quantidade: 12 valores distintos, 4 após padronizar
-- Ação: Padronizar os valores ignorando maiúsculas, acentos e espaços
+- Problema: Estado nulo
+- Quantidade: 163 linhas
+- Ação: Recuperar os valores a partir de outras colunas da própria base
 
 8. Gravidade: Baixa
-- Problema: Variações inconsistentes de texto na coluna de categoria
-- Quantidade: 15 valores distintos, 5 após padronizar
-- Ação: Padronizar os valores ignorando maiúsculas, acentos e espaços
+- Problema: Categoria nula
+- Quantidade: 56 linhas
+- Ação: Recuperar os valores a partir de outras colunas da própria base
 
 9. Gravidade: Baixa
-- Problema: Categoria de produto ausente (valor nulo)
-- Quantidade: 56
-- Ação: Recuperar os valores a partir de outras colunas da própria base
+- Problema: Variações no texto da cidade
+- Quantidade: 52 valores distintos, 12 após padronizar
+- Ação: Padronizar os textos ignorando maiúsculas, acentos e espaços
 
 10. Gravidade: Baixa
-- Problema: Variações inconsistentes de texto na coluna de cidade
-- Quantidade: 52 valores distintos, 12 após padronizar
-- Ação: Padronizar os valores ignorando maiúsculas, acentos e espaços
+- Problema: Variações no texto da categoria
+- Quantidade: 15 valores distintos, 5 após padronizar
+- Ação: Padronizar os textos ignorando maiúsculas, acentos e espaços
 
 11. Gravidade: Baixa
-- Problema: Estado ausente (valor nulo)
-- Quantidade: 163
-- Ação: Recuperar os valores a partir de outras colunas da própria base
+- Problema: Variações no texto do status
+- Quantidade: 12 valores distintos, 4 após padronizar
+- Ação: Padronizar os textos ignorando maiúsculas, acentos e espaços
 
 12. Gravidade: Baixa
-- Problema: Cidade ausente (valor nulo)
-- Quantidade: 31
-- Ação: Recuperar os valores a partir do estado quando o estado tiver uma única cidade na base, ou separar as linhas para revisão caso contrário
+- Problema: Cidade nula
+- Quantidade: 31 linhas
+- Ação: Recuperar os valores a partir do estado quando o estado tiver uma única cidade na base ou separar as linhas para revisão caso contrário
 
 Total de problemas listados: 12
 
-A base não está pronta para análise e requer tratamento dos problemas identificados antes de ser utilizada.
+A base não está pronta para análise.
 
 ## 2. Análise comercial
 
-1. Visão geral: A loja registrou um total de 4.871 pedidos, com 9.665 unidades vendidas e uma receita total de R$ 2.081.332,37 entre os anos de 2023 e 2024. O crescimento das unidades vendidas em 2024 na comparação com 2023 foi de 35,04%.
+1. Visão geral: total de pedidos, unidades, receita total e crescimento de 2024 sobre 2023.
+A loja registrou um total de 4.871 pedidos, com 9.665 unidades vendidas e uma receita total de R$ 2.081.332,37. O crescimento das unidades vendidas em 2024 em comparação a 2023 foi de 35,04%.
 
-2. Categorias: A categoria Eletrônicos registrou 2.527 unidades e R$ 821.515,52 de receita, Moda teve 2.333 unidades e R$ 416.218,29, Casa & Decoração obteve 1.907 unidades e R$ 326.748,39, Beleza somou 1.560 unidades e R$ 385.033,10, e Esporte alcançou 1.338 unidades e R$ 131.817,07. As categorias Beleza e Casa & Decoração mudam de posição entre unidades e receita.
+2. Categorias: unidades e receita de cada categoria, e quais mudam de posição entre unidades e receita.
+Na categoria Eletrônicos foram vendidas 2.527 unidades com receita de R$ 821.515,52. Em Moda foram 2.333 unidades e receita de R$ 416.218,29, em Casa & Decoracao foram 1.907 unidades e receita de R$ 326.748,39, em Beleza foram 1.560 unidades e receita de R$ 385.033,1, e em Esporte foram 1.338 unidades e receita de R$ 131.817,07. As categorias Beleza e Casa & Decoracao mudam de posição entre unidades e receita.
 
-3. Ticket médio: O ticket médio da categoria Eletrônicos foi de R$ 325,10, o de Beleza foi de R$ 246,82, o de Moda foi de R$ 178,40, o de Casa & Decoração foi de R$ 171,34 e o de Esporte foi de R$ 98,52.
+3. Ticket médio: o ticket médio de cada uma das 5 categorias.
+O ticket médio de Eletrônicos é de R$ 325,1, de Moda é de R$ 178,4, de Beleza é de R$ 246,82, de Casa & Decoracao é de R$ 171,34 e de Esporte é de R$ 98,52.
 
-4. Estados: Os três primeiros colocados em unidades foram SP com 3.405 unidades, RJ com 1.150 unidades e MG com 995 unidades, enquanto o último colocado entre os dez listados foi GO com 341 unidades. O ticket médio é parecido entre os estados, variando de R$ 199,73 em PE até R$ 221,51 em BA.
+4. Estados: os 3 primeiros e o último colocado em unidades, e se o ticket médio é parecido entre os estados.
+O primeiro colocado em unidades é SP com 3.405 unidades, o segundo é RJ com 1.150 unidades, o terceiro é MG com 995 unidades, e o último colocado é GO com 341 unidades. O ticket médio é parecido entre os estados, variando entre R$ 199,73 e R$ 221,51.
 
-5. Canais: O canal site registrou 4.384 unidades, R$ 947.832,27 de receita e ticket médio de R$ 216,20, o app somou 3.401 unidades, R$ 715.029,05 de receita e ticket médio de R$ 210,24, e o marketplace obteve 1.880 unidades, R$ 418.471,05 de receita e ticket médio de R$ 222,59, destacando o marketplace com o maior ticket médio.
+5. Canais: unidades, receita e ticket médio dos 3 canais, destacando o maior ticket médio.
+No canal site foram vendidas 4.384 unidades com receita de R$ 947.832,27 e ticket médio de R$ 216,2. No app foram 3.401 unidades, receita de R$ 715.029,05 e ticket médio de R$ 210,24, enquanto no marketplace foram 1.880 unidades, receita de R$ 418.471,05 e ticket médio de R$ 222,59, sendo este último o canal com o maior ticket médio.
 
-6. Cancelamento: A taxa de cancelamento geral foi de 7,92%, sendo de 8,45% em Eletrônicos, 7,95% em Moda, 7,88% em Beleza, 6,70% em Casa & Decoração e 8,66% em Esporte.
+6. Cancelamento: a taxa geral e a taxa de cada uma das 5 categorias.
+A taxa de cancelamento geral da loja foi de 7,92%. Por categoria, a taxa de cancelamento foi de 8,45% em Eletrônicos, 7,95% em Moda, 7,88% em Beleza, 6,7% em Casa & Decoracao e 8,66% em Esporte.
 
-7. Sazonalidade: Os 3 meses mais fortes em unidades vendidas foram 2024-11 com 825 unidades, 2024-12 com 720 unidades e 2023-11 com 552 unidades. Os 3 meses mais fracos foram 2023-02 com 226 unidades, 2023-01 com 235 unidades e 2023-08 com 300 unidades.
+7. Sazonalidade: os 3 meses mais fortes e os 3 mais fracos.
+Os 3 meses mais fortes em unidades vendidas foram 2024-11 com 825 unidades, 2024-12 com 720 unidades e 2023-11 com 552 unidades. Os 3 meses mais fracos em unidades vendidas foram 2023-02 com 226 unidades, 2023-01 com 235 unidades e 2023-08 com 300 unidades.
 
-Limitações: Os dados consolidados de estados cobrem apenas os dez principais estados listados no resumo, deixando de fora eventuais vendas de outras localidades.
+Limitações: Os dados cobrem apenas o período de janeiro de 2023 a dezembro de 2024 e não incluem informações sobre custos operacionais ou margem de lucro dos produtos.
 
 ## 3. Recomendações
 
-1. Implemente o tratamento dos dados corrompidos separando para revisão as 21 linhas com preços unitários negativos, as 45 linhas com quantidades zero ou negativas e as 71 linhas com preços unitários ausentes, além de converter os 5.118 valores de frete de texto para formato numérico.
+1. Separe as 21 linhas com preço unitário negativo, as 45 linhas com quantidade zero ou negativa e as 71 linhas com preço unitário nulo para revisão, conforme apontado na validação dos dados.
 Classificação: Os dados provam
 
-2. Mantenha o foco de investimento e estratégias de vendas na categoria Eletrônicos, que lidera o desempenho geral ao registrar 2.527 unidades e R$ 821.515,52 de receita.
+2. Invista e mantenha os recursos na categoria Eletrônicos, que lidera com 2.527 unidades e receita de R$ 821.515,52.
 Classificação: Os dados provam
 
-3. Investigue as razões do desempenho fraco da categoria Esporte, que apresenta o menor volume com 1.338 unidades e a menor receita de R$ 131.817,07, além da maior taxa de cancelamento de 8,66%. Hipótese: o baixo desempenho pode estar relacionado à falta de atratividade do mix de produtos ou problemas logísticos. Dados adicionais necessários para confirmar: pesquisa de satisfação dos clientes e análise detalhada de devoluções por defeito.
+3. Investigue o motivo do baixo volume de vendas da categoria Esporte, que registrou 1.338 unidades e receita de R$ 131.817,07, sendo a categoria mais fraca.
 Classificação: Os dados só sugerem
 
-4. Invista em ações de crescimento para o canal marketplace, que apresenta o maior ticket médio de R$ 222,59, superando o site com R$ 216,20 e o app com R$ 210,24, apesar de registrar um volume menor de 1.880 unidades. Hipótese: o canal atrai um público com maior poder aquisitivo ou busca por produtos de maior valor agregado. Dados adicionais necessários para confirmar: perfil demográfico e histórico de navegação dos compradores por canal.
+4. Invista em campanhas e ações comerciais para o canal marketplace, que possui o maior ticket médio de R$ 222,59, embora tenha o menor volume com 1.880 unidades e receita de R$ 418.471,05.
 Classificação: Os dados só sugerem
 
-Limitações: Os dados consolidados de estados cobrem apenas os dez principais estados listados no resumo, deixando de fora eventuais vendas de outras localidades. Dados adicionais necessários para confirmar: base completa com o universo total de estados e cidades atendidas.
-Classificação: Os dados provam
+Limitações: Os dados não indicam as causas do baixo volume de vendas na categoria Esporte e no canal marketplace; dados adicionais de pesquisa de mercado e comportamento do consumidor ajudariam a confirmar os motivos dessas posições.
 
 ## Verificação automática dos números
 

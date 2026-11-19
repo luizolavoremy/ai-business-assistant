@@ -88,6 +88,7 @@ REGRAS:
 - Volume por estado não mostra poder de compra por pessoa, só o total vendido.
 - Escreva todos os números no formato brasileiro, com ponto nos milhares e vírgula nos decimais, como R$ 2.081.332,37, 9.665 unidades e 7,92%.
 - Responda em português.
+- por_categoria, por_estado e por_canal cobrem todos os pedidos da base. Os estados listados são todos os estados da base, e não apenas os principais. Nunca diga que existem dados fora dessas listas.
 
 FORMATO DA RESPOSTA:
 Escreva exatamente 7 achados numerados, nesta ordem:
@@ -141,6 +142,7 @@ FORMATO DA RESPOSTA:
 Escreva de 4 a 5 ações numeradas. Cada ação tem três partes: a ação, começando com um verbo no imperativo; a justificativa, com o número que a sustenta; e a classificação, "Os dados provam" ou "Os dados só sugerem". Depois, escreva uma linha começando com "Limitações:" que cite 1 a 2 limitações dos dados e quais dados adicionais ajudariam.
 As limitações devem estar ligadas às ações propostas. 
 Escreva a classificação em uma linha própria, começando com "Classificação:".
+A linha de Limitações não recebe classificação.
 """
 
 
