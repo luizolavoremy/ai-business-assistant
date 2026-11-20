@@ -115,4 +115,4 @@ ai-business-assistant/
 
 ## Autor
 
-[Seu Nome] · [LinkedIn ou e-mail]
+Luiz Olavo Remy Firmino · https://www.linkedin.com/in/luiz-olavo-remy · luiz.olavo.remy@gmail.com
